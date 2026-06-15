@@ -26,6 +26,18 @@ def delteFile():
     os.remove(to_delete_file_name)
     print(f"File {to_delete_file_name} deleted successfully.")
 
+def editFile():
+    to_edit_file_name = input("File to edit: ")
+    file_not_exists = not(os.path.isfile(to_edit_file_name))
+    if(file_not_exists):
+        print("Can't edit file, no such name in directory!")
+        return
+    with open(to_edit_file_name, 'w') as nf:
+        to_edit_file_data = input("Write down new file data (press enter to save): ")
+        nf.write(to_edit_file_data)
+        pass
+    print(f"File {to_edit_file_name} overwritten successfully.")
+
 def main():
     while(True):
         print("What operation would you like to do:\n1. Add file\n2. Delete file\n3. Edit file\n4. Change directory\n5. Exit")
@@ -39,7 +51,7 @@ def main():
             case 2:
                 delteFile()
             case 3:
-                pass
+                editFile()
             case 4:
                 pass
             case 5:
