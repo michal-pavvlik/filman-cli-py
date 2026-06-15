@@ -15,6 +15,16 @@ def addNewFile():
         return
     with open(new_file_name, 'w') as nf:
         pass
+    print(f"File {new_file_name} created successfully.")
+
+def delteFile():
+    to_delete_file_name = input("File to delete: ")
+    file_not_exists = not(os.path.isfile(to_delete_file_name))
+    if(file_not_exists):
+        print("Can't delete file, no such name in directory!")
+        return
+    os.remove(to_delete_file_name)
+    print(f"File {to_delete_file_name} deleted successfully.")
 
 def main():
     while(True):
@@ -27,7 +37,7 @@ def main():
             case 1:
                 addNewFile()
             case 2:
-                pass
+                delteFile()
             case 3:
                 pass
             case 4:
