@@ -51,10 +51,15 @@ def changeCWD():
 def main():
     while(True):
         print("What operation would you like to do:\n1. Add file\n2. Delete file\n3. Edit file\n4. Change directory\n5. Exit")
-        operation_id = input()
-        while(int(operation_id) not in operations_possibilities):
-            print("Wrong input, write down a value from 1 to 5")
-            operation_id = input()
+        while(True):
+            try:
+                operation_id = int(input("Write down a value from 1 to 5: "))
+                if operation_id not in operations_possibilities:
+                    print("Input out of range")
+                else:
+                    break
+            except ValueError:
+                print("Input is not a number")
         match int(operation_id):
             case 1:
                 addNewFile()
