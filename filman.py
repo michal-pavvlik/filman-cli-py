@@ -1,4 +1,7 @@
+from __future__ import annotations
 import os
+from abc import ABC, abstractmethod
+
 
 print("""    ____________    __  ______    _   __
    / ____/  _/ /   /  |/  /   |  / | / /
@@ -6,49 +9,101 @@ print("""    ____________    __  ______    _   __
  / __/ _/ // /___/ /  / / ___ |/ /|  /  
 /_/   /___/_____/_/  /_/_/  |_/_/ |_/  """)
 
-operations_possibilities = range(1,6)
 
-def addNewFile():
-    new_file_name = input("Name of the file to create (with format): ")
-    if(os.path.isfile(new_file_name)):
-        print("File already exists!")
-        return
-    with open(new_file_name, 'w') as nf:
+# Implementation of command design-pattern
+class Command(ABC):
+
+    @abstractmethod
+    def execute(self) -> None:
         pass
-    print(f"File {new_file_name} created successfully.")
 
-def delteFile():
-    to_delete_file_name = input("File to delete: ")
-    file_not_exists = not(os.path.isfile(to_delete_file_name))
-    if(file_not_exists):
-        print("Can't delete file, no such name in directory!")
-        return
-    os.remove(to_delete_file_name)
-    print(f"File {to_delete_file_name} deleted successfully.")
+class AddFileCommand(Command):
 
-def editFile():
-    to_edit_file_name = input("File to edit: ")
-    file_not_exists = not(os.path.isfile(to_edit_file_name))
-    if(file_not_exists):
-        print("Can't edit file, no such name in directory!")
-        return
-    with open(to_edit_file_name, 'w') as nf:
-        to_edit_file_data = input("Write down new file data (press enter to save): ")
-        nf.write(to_edit_file_data)
-        pass
-    print(f"File {to_edit_file_name} overwritten successfully.")
+    def __init__(self, receiver: Receiver, filename: str) -> None:
+        self._receiver = receiver
+        self._filename = filename
 
-def changeCWD():
-    to_change_cwd_name = input("New directory name: ")
-    dir_not_exists = not(os.path.isdir(to_change_cwd_name))
-    if(dir_not_exists):
-        print("This directory does not exist!")
-        return
-    os.chdir(to_change_cwd_name)
-    print(f"Changed current working directory to {to_change_cwd_name}.")
+    def execute(self) -> None:
+        self._receiver.addFile(self._filename)
+
+class deleteFileCommand(Command):
+
+    def __init__(self, receiver: Receiver, filename: str) -> None:
+        self._receiver = receiver
+        self._filename = filename
+
+    def execute(self) -> None:
+        self._receiver.deleteFile(self._filename)
+
+class editFileCommand(Command):
+
+    def __init__(self, receiver: Receiver, filename: str, file_data: str) -> None:
+        self._receiver = receiver
+        self._filename = filename
+        self._file_data = file_data
+
+    def execute(self) -> None:
+        self._receiver.editFile(self._filename, self._file_data)
+
+class changeCwdCommand(Command):
+
+    def __init__(self, receiver: Receiver, dirname: str) -> None:
+        self._receiver = receiver
+        self._dirname = dirname
+
+    def execute(self) -> None:
+        self._receiver.changeCwd(self._dirname)
+
+
+class Receiver:
+
+    def addFile(self, filename: str) -> None:
+        if(os.path.isfile(filename)):
+            print("File already exists!")
+            return
+        with open(filename, 'w') as nf:
+            pass
+        print(f"File {filename} created successfully.")
+
+    def deleteFile(self, filename: str) -> None:
+        file_not_exists = not(os.path.isfile(filename))
+        if(file_not_exists):
+            print("Can't delete file, no such name in directory!")
+            return
+        os.remove(filename)
+        print(f"File {filename} deleted successfully.")
+    
+    def editFile(self, filename: str, file_data: str) -> None:
+        file_not_exists = not(os.path.isfile(filename))
+        if(file_not_exists):
+            print("Can't edit file, no such name in directory!")
+            return
+        with open(filename, 'w') as nf:
+
+            nf.write(file_data)
+            pass
+        print(f"File {filename} overwritten successfully.")
+
+    def changeCwd(self, dirname: str) -> None:
+        dir_not_exists = not(os.path.isdir(dirname))
+        if(dir_not_exists):
+            print("This directory does not exist!")
+            return
+        os.chdir(dirname)
+        print(f"Changed current working directory to {dirname}.")
+
+
+class Invoker:
+
+    def doCommand(self, command: Command) -> None:
+        command.execute()
+
 
 
 def main():
+    operations_possibilities = range(1,6)
+    invoker = Invoker()
+    receiver = Receiver()
     while(True):
         print("What operation would you like to do:\n1. Add file\n2. Delete file\n3. Edit file\n4. Change directory\n5. Exit")
         while(True):
@@ -62,15 +117,21 @@ def main():
                 print("Input is not a number")
         match int(operation_id):
             case 1:
-                addNewFile()
+                filename = input("write down file name: ")
+                invoker.doCommand(AddFileCommand(receiver, filename))
             case 2:
-                delteFile()
+                filename = input("write down file name: ")
+                invoker.doCommand(deleteFileCommand(receiver, filename))
             case 3:
-                editFile()
+                filename = input("write down file name: ")
+                file_data = input("Write down new file data (press enter to save): ")
+                invoker.doCommand(editFileCommand(receiver, filename, file_data))
             case 4:
-                changeCWD()
+                filename = input("write down desired directory name: ")
+                invoker.doCommand(changeCwdCommand(receiver, filename))
             case 5:
                 print("Shutting down the program.")
                 return
+
 if __name__ == "__main__":
     main()
