@@ -1,7 +1,7 @@
 from __future__ import annotations
 import os
 from abc import ABC, abstractmethod
-
+from collections import deque
 
 print("""    ____________    __  ______    _   __
    / ____/  _/ /   /  |/  /   |  / | / /
@@ -95,9 +95,15 @@ class Receiver:
 
 class Invoker:
 
+    def __init__(self) -> None:
+        self.commands_history = deque([])
+
     def doCommand(self, command: Command) -> None:
         command.execute()
-
+        if(len(self.commands_history) >= 10):
+            self.commands_history.popleft()
+        self.commands_history.append(command)
+        print(self.commands_history)
 
 
 def main():
