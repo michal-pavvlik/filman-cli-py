@@ -35,7 +35,6 @@ class deleteFileCommand(Command):
 
     def execute(self) -> None:
         self._deleted_data = self._receiver.getFileContent(self._filename)
-        print(self._deleted_data)
         self._receiver.deleteFile(self._filename)
 
 class editFileCommand(Command):
@@ -48,7 +47,6 @@ class editFileCommand(Command):
 
     def execute(self) -> None:
         self._old_file_data = self._receiver.getFileContent(self._filename)
-        print(self._old_file_data)
         self._receiver.editFile(self._filename, self._file_data)
 
 class changeCwdCommand(Command):
@@ -60,7 +58,6 @@ class changeCwdCommand(Command):
 
     def execute(self) -> None:
         self._old_cwd = os.getcwd()
-        print(self._old_cwd)
         self._receiver.changeCwd(self._dirname)
 
 
