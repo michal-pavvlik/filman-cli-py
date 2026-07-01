@@ -112,7 +112,6 @@ class Invoker:
         if(len(self.commands_history) >= 10):
             self.commands_history.popleft()
         self.commands_history.append(command)
-        print(self.commands_history)
 
 
 def main():
