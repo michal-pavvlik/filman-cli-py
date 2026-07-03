@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os
+import argparse
 from abc import ABC, abstractmethod
 from collections import deque
 
@@ -154,6 +155,15 @@ class Invoker:
         previous_command.undo()
 
 def main():
+    parser = argparse.ArgumentParser(description="Manage files")
+    parser.add_argument('-a', '--add')
+    parser.add_argument('-d', '--delete')
+    parser.add_argument('-e', '--edit')
+    parser.add_argument('-c', '--changecwd')
+    parser.add_argument('-m', '--move', nargs=2)
+    args = parser.parse_args()
+    print(args.move)
+    
     operations_possibilities = range(1,8)
     invoker = Invoker()
     receiver = Receiver()
