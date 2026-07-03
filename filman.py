@@ -131,7 +131,7 @@ class Receiver:
         os.rename(source_file, dest_file)
         
 
-    def getFileContent(self, filename, dirname):
+    def getFileContent(self, filename):
         with open(filename, "r") as f:
             return f.read()
 
