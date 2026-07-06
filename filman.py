@@ -155,52 +155,37 @@ class Invoker:
         previous_command.undo()
 
 def main():
+    invoker = Invoker()
+    receiver = Receiver()
+
     parser = argparse.ArgumentParser(description="Manage files")
     parser.add_argument('-a', '--add')
     parser.add_argument('-d', '--delete')
-    parser.add_argument('-e', '--edit')
+    parser.add_argument('-e', '--edit', nargs=2)
     parser.add_argument('-c', '--changecwd')
     parser.add_argument('-m', '--move', nargs=2)
+    parser.add_argument('-u', '--undo', action='store_true')
     args = parser.parse_args()
-    print(args.move)
-    
-    operations_possibilities = range(1,8)
-    invoker = Invoker()
-    receiver = Receiver()
-    while(True):
-        print("What operation would you like to do:\n1. Add file\n2. Delete file\n3. Edit file\n4. Change directory\n5. Move file\n6. Undo command\n7. Exit")
-        while(True):
-            try:
-                operation_id = int(input("Write down a value from 1 to 7: "))
-                if operation_id not in operations_possibilities:
-                    print("Input out of range")
-                else:
-                    break
-            except ValueError:
-                print("Input is not a number")
-        match int(operation_id):
-            case 1:
-                filename = input("write down file name: ")
-                invoker.doCommand(AddFileCommand(receiver, filename))
-            case 2:
-                filename = input("write down file name: ")
-                invoker.doCommand(deleteFileCommand(receiver, filename))
-            case 3:
-                filename = input("write down file name: ")
-                file_data = input("Write down new file data (press enter to save): ")
-                invoker.doCommand(editFileCommand(receiver, filename, file_data))
-            case 4:
-                filename = input("write down desired directory name: ")
-                invoker.doCommand(changeCwdCommand(receiver, filename))
-            case 5:
-                source_file = input("write down file with full path: ")
-                dest_file = input("write down destination directory: ")
-                invoker.doCommand(moveFileCommand(receiver, source_file, dest_file))
-            case 6:
-                invoker.undoCommand()
-            case 7:
-                print("Shutting down the program.")
-                return
+
+    if(args.add):
+        arg1 = args.add
+        invoker.doCommand(AddFileCommand(receiver, arg1))
+    elif(args.delete):
+        arg1 = args.delete
+        invoker.doCommand(deleteFileCommand(receiver, arg1))
+    elif(args.edit):
+        arg1 = args.edit[0]
+        arg2 = args.edit[1]
+        invoker.doCommand(editFileCommand(receiver, arg1))
+    elif(args.changecwd):
+        arg1 = args.changecwd
+        invoker.doCommand(changeCwdCommand(receiver, arg1))
+    elif(args.move):
+        arg1 = args.move[0]
+        arg2 = args.move[1]
+        invoker.doCommand(moveFileCommand(receiver, arg1, arg2))
+    elif(args.undo):
+        invoker.undoCommand()
 
 if __name__ == "__main__":
     main()
