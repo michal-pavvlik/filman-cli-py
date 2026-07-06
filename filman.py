@@ -4,11 +4,7 @@ import argparse
 from abc import ABC, abstractmethod
 from collections import deque
 
-print("""    ____________    __  ______    _   __
-   / ____/  _/ /   /  |/  /   |  / | / /
-  / /_   / // /   / /|_/ / /| | /  |/ / 
- / __/ _/ // /___/ /  / / ___ |/ /|  /  
-/_/   /___/_____/_/  /_/_/  |_/_/ |_/  """)
+ascii_art = """    ____________    __  ______    _   __\n   / ____/  _/ /   /  |/  /   |  / | / /\n  / /_   / // /   / /|_/ / /| | /  |/ /\n / __/ _/ // /___/ /  / / ___ |/ /|  /\n/_/   /___/_____/_/  /_/_/  |_/_/ |_/  """
 
 
 # Implementation of command design pattern
@@ -158,13 +154,16 @@ def main():
     invoker = Invoker()
     receiver = Receiver()
 
-    parser = argparse.ArgumentParser(description="Manage files")
-    parser.add_argument('-a', '--add')
-    parser.add_argument('-d', '--delete')
-    parser.add_argument('-e', '--edit', nargs=2)
-    parser.add_argument('-c', '--changecwd')
-    parser.add_argument('-m', '--move', nargs=2)
-    parser.add_argument('-u', '--undo', action='store_true')
+    parser = argparse.ArgumentParser(prog="filman", description=f"{ascii_art}\nLightweight file manager, made with Python, created specifically for Linux terminal envirnonment.", formatter_class=argparse.RawDescriptionHelpFormatter)
+    
+    group = parser.add_mutually_exclusive_group(required=True)
+
+    group.add_argument('-a', '--add', help="Add new file", metavar="FILE")
+    group.add_argument('-d', '--delete', help="Delete existing file", metavar="FILE")
+    group.add_argument('-e', '--edit', nargs=2, help="Edit contents of a file, write in \"\"", metavar=("FILE", "STR_CONTENT"))
+    group.add_argument('-c', '--changecwd', help="Change working directory", metavar="DIRECTORY")
+    group.add_argument('-m', '--move', nargs=2, help="Move a file between directories", metavar=("FILE_DIR1", "FILE_DIR2"))
+    group.add_argument('-u', '--undo', action='store_true', help="Undo previous action")
     args = parser.parse_args()
 
     if(args.add):
@@ -176,7 +175,7 @@ def main():
     elif(args.edit):
         arg1 = args.edit[0]
         arg2 = args.edit[1]
-        invoker.doCommand(editFileCommand(receiver, arg1))
+        invoker.doCommand(editFileCommand(receiver, arg1, arg2))
     elif(args.changecwd):
         arg1 = args.changecwd
         invoker.doCommand(changeCwdCommand(receiver, arg1))
