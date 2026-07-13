@@ -1,6 +1,6 @@
 # filman - CLI File Manager
 
-Lightweight file manager, made with Python, created specifically for Linux terminal envirnonment.
+Lightweight file manager, made with Python, created specifically for Linux terminal environment.
 
 ## 🚀 Features
 
@@ -8,11 +8,12 @@ Lightweight file manager, made with Python, created specifically for Linux termi
 * **Add:** Create new files instantly
 * **Delete:** Remove files from the system
 * **Edit:** Modify file contents directly in CLI
-* **Navigate:** Change directories seamlessly
+* **Move:** Move a file between directories
+* **Undo:** Made a mistake? No problem, just undo it.
 
 ## 🛠️  Requirements
 
-* Linux OS
+* Linux OS<
 * Python 3.x
 
 ## 💻 Usage
@@ -20,4 +21,4 @@ Lightweight file manager, made with Python, created specifically for Linux termi
 To launch the file manager, execute the script in your terminal:
 
 ```bash
-python3 filman.py
+python3 filman.py -h
