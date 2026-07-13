@@ -13,7 +13,7 @@ Lightweight file manager, made with Python, created specifically for Linux termi
 
 ## 🛠️  Requirements
 
-* Linux OS<
+* Linux OS
 * Python 3.x
 
 ## 💻 Usage
