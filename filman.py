@@ -56,20 +56,6 @@ class editFileCommand(Command):
     def undo(self) -> None:
         self._receiver.editFile(self._filename, self._old_file_data)
 
-class changeCwdCommand(Command):
-
-    def __init__(self, receiver: Receiver, dirname: str) -> None:
-        self._receiver = receiver
-        self._dirname = dirname
-        self._old_cwd = None
-
-    def execute(self) -> None:
-        self._old_cwd = os.getcwd()
-        self._receiver.changeCwd(self._dirname)
-
-    def undo(self) -> None:
-        self._receiver.changeCwd(self._old_cwd)
-
 class moveFileCommand(Command):
     
     def __init__(self, receiver: Receiver, source_file: str, dest_file: str) -> None:
@@ -112,14 +98,6 @@ class Receiver:
             pass
         print(f"File {filename} overwritten successfully.")
 
-    def changeCwd(self, dirname: str) -> None:
-        dir_not_exists = not(os.path.isdir(dirname))
-        if(dir_not_exists):
-            print("This directory does not exist!")
-            return
-        os.chdir(dirname)
-        print(f"Changed current working directory to {dirname}.")
-
     def moveFile(self, source_file: str, dest_file: str) -> None:
         file_not_exists = not(os.path.isfile(source_file))
         if(file_not_exists):
@@ -161,7 +139,6 @@ def main():
     group.add_argument('-a', '--add', help="Add new file", metavar="FILE")
     group.add_argument('-d', '--delete', help="Delete existing file", metavar="FILE")
     group.add_argument('-e', '--edit', nargs=2, help="Edit contents of a file, write in \"\"", metavar=("FILE", "STR_CONTENT"))
-    group.add_argument('-c', '--changecwd', help="Change working directory", metavar="DIRECTORY")
     group.add_argument('-m', '--move', nargs=2, help="Move a file between directories", metavar=("FILE_DIR1", "FILE_DIR2"))
     group.add_argument('-u', '--undo', action='store_true', help="Undo previous action")
     args = parser.parse_args()
@@ -176,9 +153,6 @@ def main():
         arg1 = args.edit[0]
         arg2 = args.edit[1]
         invoker.doCommand(editFileCommand(receiver, arg1, arg2))
-    elif(args.changecwd):
-        arg1 = args.changecwd
-        invoker.doCommand(changeCwdCommand(receiver, arg1))
     elif(args.move):
         arg1 = args.move[0]
         arg2 = args.move[1]
