@@ -3,6 +3,7 @@ import os
 import argparse
 from abc import ABC, abstractmethod
 from collections import deque
+import json
 
 ascii_art = """    ____________    __  ______    _   __\n   / ____/  _/ /   /  |/  /   |  / | / /\n  / /_   / // /   / /|_/ / /| | /  |/ /\n / __/ _/ // /___/ /  / / ___ |/ /|  /\n/_/   /___/_____/_/  /_/_/  |_/_/ |_/  """
 
@@ -13,6 +14,7 @@ class Command(ABC):
     @abstractmethod
     def execute(self) -> None:
         pass
+    
 
 class AddFileCommand(Command):
 
@@ -127,6 +129,34 @@ class Invoker:
             return
         previous_command = self._commands_history.pop()
         previous_command.undo()
+
+
+# Commands History is a class responsible for whole flow of saving and retrieving file states
+# In files_states_history every json object represents single command change in format
+# command: ... arg1: ... arg2: ...      where arg1, arg2 represents everything needed for this command to revert
+class CommandsHistory:
+    def __init__(self) -> None:
+        with open("commands_history.json", "r") as f:
+            self._commands_history = json.load(f)
+
+    def _saveChangesToJSON(self) -> None:
+        with open("commands_history.json", "w") as f:
+            json.dump(self._commands_history, f)
+
+    def removeFirst(self) -> None:
+        self._commands_history = self._commands_history[1::]
+        self._saveChangesToJSON()
+
+    def removeLast(self) -> None:
+        self._commands_history = self._commands_history[:-1]
+        self._saveChangesToJSON()
+
+    def addCommand(self, command, arg1, arg2) -> None:
+        if(len(self._commands_history) >= 10):
+            self.removeFirst()
+        new_command = {"command": command, "arg1": arg1, "arg2": arg2}
+        self._commands_history.append(new_command)
+        self._saveChangesToJSON()
 
 def main():
     invoker = Invoker()
