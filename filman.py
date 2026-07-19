@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from collections import deque
 import json
 
-ascii_art = """    ____________    __  ______    _   __\n   / ____/  _/ /   /  |/  /   |  / | / /\n  / /_   / // /   / /|_/ / /| | /  |/ /\n / __/ _/ // /___/ /  / / ___ |/ /|  /\n/_/   /___/_____/_/  /_/_/  |_/_/ |_/  """
+ascii_art = """    ____________    __  ______    _   __\n   / ____/  _/ /   /  |/  /   |  / | / /\n  / /_   / // /   / /|_/ / /| | /  |/ /\n / __/ _/ // /___/ /  / / ___ |/ /|  /\n/_/   /___/_____/_/  /_/_/  |_/_/ |_/\n"""
 
 
 # Implementation of command design pattern
@@ -40,17 +40,18 @@ class deleteFileCommand(Command):
     def __init__(self, receiver: Receiver, filename: str) -> None:
         self._receiver = receiver
         self._filename = filename
-        self._deleted_data = self._receiver.getFileContent(self._filename)
+        self.deleted_data = None
 
     def commandToDict(self) -> None:
-        return {"command": "Delete", "arg1": self._filename, "arg2": ""}
+        return {"command": "Delete", "arg1": self._filename, "arg2": self.deleted_data}
 
     def execute(self) -> None:
+        self.deleted_data = self._receiver.getFileContent(self._filename)
         self._receiver.deleteFile(self._filename)
 
     def undo(self) -> None:
         self._receiver.addFile(self._filename)
-        self._receiver.editFile(self._filename, self._deleted_data)
+        self._receiver.editFile(self._filename, self.deleted_data)
 
 class editFileCommand(Command):
 
@@ -58,12 +59,13 @@ class editFileCommand(Command):
         self._receiver = receiver
         self._filename = filename
         self._file_data = file_data
-        self._old_file_data = self._receiver.getFileContent(self._filename)
+        self._old_file_data = None
 
-    def commandToDict(self) -> None:
+    def commandToDict(self):
         return {"command": "Edit", "arg1": self._filename, "arg2": self._old_file_data}
 
     def execute(self) -> None:
+        self._old_file_data = self._receiver.getFileContent(self._filename)
         self._receiver.editFile(self._filename, self._file_data)
     
     def undo(self) -> None:
@@ -136,10 +138,7 @@ class Invoker:
         self._commands_history.addCommand(command)
 
     def undoCommand(self) -> None:
-        if(len(self._commands_history) == 0):
-            print("There are no commands to undo!")
-            return
-        previous_command = self._commands_history.pop()
+        previous_command = self._commands_history.returnLastCommand()
         previous_command.undo()
 
 
@@ -160,17 +159,42 @@ class CommandsHistory:
         with open("commands_history.json", "w") as f:
             json.dump(self._commands_history, f)
 
-    def removeFirst(self) -> None:
+    def _removeFirst(self) -> None:
         self._commands_history = self._commands_history[1::]
         self._saveChangesToJSON()
+
+    def _dictToCommand(self, dict) -> None:
+        receiver = Receiver()
+        self.command_name = dict["command"]
+        match self.command_name:
+            case "Add":
+                return AddFileCommand(receiver, dict["arg1"])
+            case "Delete":
+                print("delete file with arg", dict["arg1"])
+                del_obj = deleteFileCommand(receiver, dict["arg1"])
+                del_obj.deleted_data = dict["arg2"]
+                return del_obj
+            case "Edit":
+                print(dict["arg1"], dict["arg2"])
+                edit_obj = editFileCommand(receiver, dict["arg1"], "")
+                edit_obj._old_file_data = dict["arg2"]
+                return edit_obj
+            case "Move":
+                return moveFileCommand(receiver, dict["arg1"], dict["arg2"])
+        print("Wrong dictionary given!!")
 
     def removeLast(self) -> None:
         self._commands_history = self._commands_history[:-1]
         self._saveChangesToJSON()
 
+    def returnLastCommand(self):
+        last_command_as_dict = self._commands_history[-1]
+        self.removeLast()
+        return self._dictToCommand(last_command_as_dict)
+
     def addCommand(self, command) -> None:
         if(len(self._commands_history) >= 10):
-            self.removeFirst()
+            self._removeFirst()
         self._commands_history.append(command.commandToDict())
         self._saveChangesToJSON()
 
