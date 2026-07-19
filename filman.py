@@ -148,8 +148,13 @@ class Invoker:
 # command: ... arg1: ... arg2: ...      where arg1, arg2 represents everything needed for this command to revert
 class CommandsHistory:
     def __init__(self) -> None:
-        with open("commands_history.json", "r") as f:
-            self._commands_history = json.load(f)
+        try:
+            with open("commands_history.json", "r") as f:
+                self._commands_history = json.load(f)
+        except FileNotFoundError:
+            with open("commands_history.json", "w") as f:
+                json.dump([], f)
+                self._commands_history = []
 
     def _saveChangesToJSON(self) -> None:
         with open("commands_history.json", "w") as f:
