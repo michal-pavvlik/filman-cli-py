@@ -14,13 +14,19 @@ class Command(ABC):
     @abstractmethod
     def execute(self) -> None:
         pass
-    
+
+    @abstractmethod
+    def commandToDict(self) -> None:
+        pass
 
 class AddFileCommand(Command):
 
     def __init__(self, receiver: Receiver, filename: str) -> None:
         self._receiver = receiver
         self._filename = filename
+    
+    def commandToDict(self) -> None:
+        return {"command": "Add", "arg1": self._filename, "arg2": ""}
 
     def execute(self) -> None:
         self._receiver.addFile(self._filename)
@@ -33,10 +39,12 @@ class deleteFileCommand(Command):
     def __init__(self, receiver: Receiver, filename: str) -> None:
         self._receiver = receiver
         self._filename = filename
-        self._deleted_data = None
+        self._deleted_data = self._receiver.getFileContent(self._filename)
+
+    def commandToDict(self) -> None:
+        return {"command": "Delete", "arg1": self._filename, "arg2": ""}
 
     def execute(self) -> None:
-        self._deleted_data = self._receiver.getFileContent(self._filename)
         self._receiver.deleteFile(self._filename)
 
     def undo(self) -> None:
@@ -49,10 +57,12 @@ class editFileCommand(Command):
         self._receiver = receiver
         self._filename = filename
         self._file_data = file_data
-        self._old_file_data = None
+        self._old_file_data = self._receiver.getFileContent(self._filename)
+
+    def commandToDict(self) -> None:
+        return {"command": "Edit", "arg1": self._filename, "arg2": self._old_file_data}
 
     def execute(self) -> None:
-        self._old_file_data = self._receiver.getFileContent(self._filename)
         self._receiver.editFile(self._filename, self._file_data)
     
     def undo(self) -> None:
@@ -65,6 +75,9 @@ class moveFileCommand(Command):
         self._source_file = source_file
         self._dest_file = dest_file
     
+    def commandToDict(self) -> None:
+        return {"command": "Move", "arg1": self._source_file, "arg2": self._dest_file}
+
     def execute(self) -> None:
         self._receiver.moveFile(self._source_file, self._dest_file)
     
