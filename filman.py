@@ -129,13 +129,11 @@ class Receiver:
 class Invoker:
 
     def __init__(self) -> None:
-        self._commands_history = deque([])
+        self._commands_history = CommandsHistory()
 
     def doCommand(self, command: Command) -> None:
         command.execute()
-        if(len(self._commands_history) >= 10):
-            self._commands_history.popleft()
-        self._commands_history.append(command)
+        self._commands_history.addCommand(command)
 
     def undoCommand(self) -> None:
         if(len(self._commands_history) == 0):
@@ -165,11 +163,10 @@ class CommandsHistory:
         self._commands_history = self._commands_history[:-1]
         self._saveChangesToJSON()
 
-    def addCommand(self, command, arg1, arg2) -> None:
+    def addCommand(self, command) -> None:
         if(len(self._commands_history) >= 10):
             self.removeFirst()
-        new_command = {"command": command, "arg1": arg1, "arg2": arg2}
-        self._commands_history.append(new_command)
+        self._commands_history.append(command.commandToDict())
         self._saveChangesToJSON()
 
 def main():
