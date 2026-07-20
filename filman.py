@@ -170,12 +170,10 @@ class CommandsHistory:
             case "Add":
                 return AddFileCommand(receiver, dict["arg1"])
             case "Delete":
-                print("delete file with arg", dict["arg1"])
                 del_obj = deleteFileCommand(receiver, dict["arg1"])
                 del_obj.deleted_data = dict["arg2"]
                 return del_obj
             case "Edit":
-                print(dict["arg1"], dict["arg2"])
                 edit_obj = editFileCommand(receiver, dict["arg1"], "")
                 edit_obj._old_file_data = dict["arg2"]
                 return edit_obj
