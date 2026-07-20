@@ -18,7 +18,32 @@ Lightweight file manager, made with Python, created specifically for Linux termi
 
 ## 💻 Usage
 
-To launch the file manager, execute the script in your terminal:
+1. Add script to executables
 
 ```bash
-python3 filman.py -h
+chmod +x filman.py
+```
+
+2. To launch the file manager simply write path the script, eg. In filman directory:
+
+```bash
+./filman.py --help
+```
+
+3. [Recommended] Script may be used just as any terminal tool. Just add its path to executables.
+* Create local bin directory (if it doesn't already exists)
+```bash
+mkdir ~/.local/bin
+```
+* Create a symbolic link. Go to filman catalog and run:
+```bash
+ln -s "$(pwd)/filman.py" ~/.local/bin/filman
+```
+* Ensure bin folder is in PATH. In most distros not needed to do (done automatically)
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+* Now just write
+```bash
+filman --help
+```
