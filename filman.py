@@ -139,7 +139,11 @@ class Invoker:
         self._commands_history.addCommand(command)
 
     def undoCommand(self) -> None:
-        previous_command = self._commands_history.returnLastCommand()
+        try:
+            previous_command = self._commands_history.returnLastCommand()
+        except IndexError:
+            print("No commands to undo!")
+            return
         previous_command.undo()
 
 
