@@ -4,6 +4,7 @@ import os
 import argparse
 from abc import ABC, abstractmethod
 from collections import deque
+from pathlib import Path
 import json
 
 ascii_art = """    ____________    __  ______    _   __\n   / ____/  _/ /   /  |/  /   |  / | / /\n  / /_   / // /   / /|_/ / /| | /  |/ /\n / __/ _/ // /___/ /  / / ___ |/ /|  /\n/_/   /___/_____/_/  /_/_/  |_/_/ |_/\n"""
@@ -147,20 +148,21 @@ class Invoker:
 # command: ... arg1: ... arg2: ...      where arg1, arg2 represents everything needed for this command to revert
 class CommandsHistory:
     def __init__(self) -> None:
+        self._commands_history_file = Path.home() / ".filman_commands_history.json"
         try:
-            with open("commands_history.json", "r") as f:
-                self._commands_history = json.load(f)
+            with open(self._commands_history_file, "r") as f:
+                self._commands_history_dict = json.load(f)
         except FileNotFoundError:
-            with open("commands_history.json", "w") as f:
+            with open(self._commands_history_file, "w") as f:
                 json.dump([], f)
-                self._commands_history = []
+                self._commands_history_dict = []
 
     def _saveChangesToJSON(self) -> None:
-        with open("commands_history.json", "w") as f:
-            json.dump(self._commands_history, f)
+        with open(self._commands_history_file, "w") as f:
+            json.dump(self._commands_history_dict, f)
 
     def _removeFirst(self) -> None:
-        self._commands_history = self._commands_history[1::]
+        self._commands_history_dict = self._commands_history_dict[1::]
         self._saveChangesToJSON()
 
     def _dictToCommand(self, dict) -> None:
@@ -182,18 +184,18 @@ class CommandsHistory:
         print("Wrong dictionary given!!")
 
     def removeLast(self) -> None:
-        self._commands_history = self._commands_history[:-1]
+        self._commands_history_dict = self._commands_history_dict[:-1]
         self._saveChangesToJSON()
 
     def returnLastCommand(self):
-        last_command_as_dict = self._commands_history[-1]
+        last_command_as_dict = self._commands_history_dict[-1]
         self.removeLast()
         return self._dictToCommand(last_command_as_dict)
 
     def addCommand(self, command) -> None:
-        if(len(self._commands_history) >= 10):
+        if(len(self._commands_history_dict) >= 10):
             self._removeFirst()
-        self._commands_history.append(command.commandToDict())
+        self._commands_history_dict.append(command.commandToDict())
         self._saveChangesToJSON()
 
 def main():
